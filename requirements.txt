@@ -1,3 +1,0 @@
-# Cursor Chat Viewer
-# No external dependencies - uses Python standard library only
-
