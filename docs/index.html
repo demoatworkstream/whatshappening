@@ -243,13 +243,14 @@
     .carousel-inner {
       position: relative;
       overflow: hidden;
-      border-radius: 16px;
+      border-radius: 20px;
       box-shadow: 0 25px 80px rgba(0, 0, 0, 0.5), 0 0 0 1px var(--border-color);
+      background: #000;
     }
 
     .carousel-slides {
       display: flex;
-      transition: transform 0.5s ease-in-out;
+      transition: transform 0.6s cubic-bezier(0.65, 0, 0.35, 1);
     }
 
     .carousel-slide {
@@ -263,69 +264,105 @@
       display: block;
     }
 
-    .carousel-slide .slide-label {
-      position: absolute;
-      top: 1rem;
-      left: 1rem;
-      background: rgba(139, 92, 246, 0.95);
+    /* Cohesive Info Block */
+    .carousel-info {
+      margin-top: 1.5rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      padding: 1.75rem 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+      position: relative;
+      transition: all 0.3s ease;
+    }
+
+    .info-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 1.5rem;
+    }
+
+    .step-badge {
+      background: linear-gradient(135deg, var(--accent-purple) 0%, var(--accent-blue) 100%);
       color: white;
       padding: 0.5rem 1rem;
-      border-radius: 8px;
-      font-size: 0.9rem;
-      font-weight: 600;
-      backdrop-filter: blur(10px);
+      border-radius: 10px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      flex-shrink: 0;
     }
 
-    .carousel-slide .slide-title {
-      position: absolute;
-      bottom: 1.5rem;
-      left: 1.5rem;
-      right: 1.5rem;
-      background: rgba(0, 0, 0, 0.75);
-      color: white;
-      padding: 1rem 1.25rem;
-      border-radius: 12px;
-      backdrop-filter: blur(10px);
+    .info-text h4 {
+      font-size: 1.5rem;
+      margin-bottom: 0.4rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
     }
 
-    .carousel-slide .slide-title h4 {
-      margin: 0 0 0.25rem 0;
-      font-size: 1.1rem;
+    .info-text p {
+      color: var(--text-secondary);
+      font-size: 1.05rem;
+      max-width: 800px;
     }
 
-    .carousel-slide .slide-title p {
-      margin: 0;
+    /* Carousel Dots & Progress */
+    .carousel-progress {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      padding-top: 1.25rem;
+      border-top: 1px solid var(--border-color);
+    }
+
+    .step-counter {
+      font-family: 'SF Mono', 'Fira Code', monospace;
       font-size: 0.9rem;
       color: var(--text-secondary);
+      font-weight: 600;
+      min-width: 4rem;
     }
 
-    /* Carousel Dots (Apple style) */
     .carousel-dots {
       display: flex;
-      justify-content: center;
-      gap: 0.5rem;
-      margin-top: 1.5rem;
-      padding: 0.75rem;
+      gap: 0.75rem;
     }
 
     .carousel-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.3);
+      width: 40px;
+      height: 4px;
+      border-radius: 2px;
+      background: rgba(255, 255, 255, 0.15);
       border: none;
       cursor: pointer;
-      transition: all 0.3s ease;
+      transition: all 0.4s ease;
       padding: 0;
+      position: relative;
+      overflow: hidden;
     }
 
-    .carousel-dot:hover {
-      background: rgba(255, 255, 255, 0.5);
+    .carousel-dot::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      width: 0;
+      background: var(--accent-purple);
+      transition: width 0s linear;
     }
 
     .carousel-dot.active {
-      background: white;
-      transform: scale(1.2);
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    .carousel-dot.active::after {
+      width: 100%;
+      transition: width 5s linear;
     }
 
     /* Carousel Navigation Arrows */
@@ -333,47 +370,61 @@
       position: absolute;
       top: 50%;
       transform: translateY(-50%);
-      background: rgba(255, 255, 255, 0.1);
-      border: 1px solid rgba(255, 255, 255, 0.2);
+      background: rgba(0, 0, 0, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.1);
       color: white;
-      width: 48px;
-      height: 48px;
+      width: 56px;
+      height: 56px;
       border-radius: 50%;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: all 0.2s ease;
-      backdrop-filter: blur(10px);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      backdrop-filter: blur(15px);
       z-index: 10;
+      opacity: 0;
+    }
+
+    .carousel-inner:hover .carousel-nav {
+      opacity: 1;
     }
 
     .carousel-nav:hover {
-      background: rgba(255, 255, 255, 0.2);
-      transform: translateY(-50%) scale(1.05);
+      background: rgba(139, 92, 246, 0.3);
+      border-color: var(--accent-purple);
+      transform: translateY(-50%) scale(1.1);
     }
 
     .carousel-nav.prev {
-      left: 1rem;
+      left: 1.5rem;
     }
 
     .carousel-nav.next {
-      right: 1rem;
+      right: 1.5rem;
     }
 
     @media (max-width: 768px) {
+      .carousel-info {
+        padding: 1.25rem 1.5rem;
+      }
+      .info-header {
+        flex-direction: column;
+        gap: 0.75rem;
+      }
+      .info-text h4 {
+        font-size: 1.25rem;
+      }
+      .info-text p {
+        font-size: 0.95rem;
+      }
+      .carousel-dot {
+        width: 30px;
+      }
       .carousel-nav {
-        width: 36px;
-        height: 36px;
-      }
-      .carousel-slide .slide-title {
-        padding: 0.75rem 1rem;
-      }
-      .carousel-slide .slide-title h4 {
-        font-size: 1rem;
-      }
-      .carousel-slide .slide-title p {
-        font-size: 0.8rem;
+        width: 44px;
+        height: 44px;
+        opacity: 1;
       }
     }
 
@@ -620,53 +671,48 @@
           <div class="carousel-slides" id="carouselSlides">
             <div class="carousel-slide">
               <img src="images/slide1.png" alt="Step 1 - Browse your chat history organized by date">
-              <span class="slide-label">Step 1</span>
-              <div class="slide-title">
-                <h4>Browse by Date</h4>
-                <p>Your chats organized by date with conversation counts</p>
-              </div>
             </div>
             <div class="carousel-slide">
               <img src="images/slide2.png" alt="Step 2 - View conversation details">
-              <span class="slide-label">Step 2</span>
-              <div class="slide-title">
-                <h4>View Conversation</h4>
-                <p>Click to see the full chat with user and AI messages</p>
-              </div>
             </div>
             <div class="carousel-slide">
               <img src="images/slide3.png" alt="Step 3 - Select multiple conversations">
-              <span class="slide-label">Step 3</span>
-              <div class="slide-title">
-                <h4>Select Conversations</h4>
-                <p>Use checkboxes to select multiple chats for export</p>
-              </div>
             </div>
             <div class="carousel-slide">
               <img src="images/slide4.png" alt="Step 4 - Export as markdown">
-              <span class="slide-label">Step 4</span>
-              <div class="slide-title">
-                <h4>Export Summary</h4>
-                <p>Copy as markdown with flexible date filtering</p>
-              </div>
             </div>
           </div>
           <button class="carousel-nav prev" onclick="prevSlide()">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
               <path d="M15 18l-6-6 6-6"/>
             </svg>
           </button>
           <button class="carousel-nav next" onclick="nextSlide()">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
               <path d="M9 18l6-6-6-6"/>
             </svg>
           </button>
         </div>
-        <div class="carousel-dots">
-          <button class="carousel-dot active" onclick="goToSlide(0)"></button>
-          <button class="carousel-dot" onclick="goToSlide(1)"></button>
-          <button class="carousel-dot" onclick="goToSlide(2)"></button>
-          <button class="carousel-dot" onclick="goToSlide(3)"></button>
+
+        <!-- Grouped Info & Progress Area -->
+        <div class="carousel-info">
+          <div class="info-header">
+            <div class="step-badge" id="stepBadge">Step 1</div>
+            <div class="info-text">
+              <h4 id="slideTitle">Browse by Date</h4>
+              <p id="slideDesc">Your chats organized by date with conversation counts</p>
+            </div>
+          </div>
+          
+          <div class="carousel-progress">
+            <div class="step-counter" id="stepCounter">01 / 04</div>
+            <div class="carousel-dots">
+              <button class="carousel-dot active" onclick="goToSlide(0)"></button>
+              <button class="carousel-dot" onclick="goToSlide(1)"></button>
+              <button class="carousel-dot" onclick="goToSlide(2)"></button>
+              <button class="carousel-dot" onclick="goToSlide(3)"></button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -759,11 +805,35 @@
     // Carousel functionality
     let currentSlide = 0;
     const totalSlides = 4;
+    const slideData = [
+      {
+        title: "Browse by Date",
+        desc: "Your chats organized by date with conversation counts"
+      },
+      {
+        title: "View Conversation",
+        desc: "Click to see the full chat with user and AI messages"
+      },
+      {
+        title: "Select Conversations",
+        desc: "Use checkboxes to select multiple chats for export"
+      },
+      {
+        title: "Export Summary",
+        desc: "Copy as markdown with flexible date filtering"
+      }
+    ];
 
     function updateCarousel() {
       const slides = document.getElementById('carouselSlides');
       slides.style.transform = `translateX(-${currentSlide * 100}%)`;
       
+      // Update text info
+      document.getElementById('slideTitle').textContent = slideData[currentSlide].title;
+      document.getElementById('slideDesc').textContent = slideData[currentSlide].desc;
+      document.getElementById('stepBadge').textContent = `Step ${currentSlide + 1}`;
+      document.getElementById('stepCounter').textContent = `0${currentSlide + 1} / 0${totalSlides}`;
+
       // Update dots
       document.querySelectorAll('.carousel-dot').forEach((dot, index) => {
         dot.classList.toggle('active', index === currentSlide);
@@ -786,7 +856,14 @@
     }
 
     // Auto-advance carousel every 5 seconds
-    setInterval(nextSlide, 5000);
+    let slideInterval = setInterval(nextSlide, 5000);
+
+    // Pause auto-advance on hover
+    const carouselContainer = document.querySelector('.carousel');
+    carouselContainer.addEventListener('mouseenter', () => clearInterval(slideInterval));
+    carouselContainer.addEventListener('mouseleave', () => {
+      slideInterval = setInterval(nextSlide, 5000);
+    });
 
     // Keyboard navigation
     document.addEventListener('keydown', (e) => {
