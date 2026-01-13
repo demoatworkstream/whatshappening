@@ -1,0 +1,1126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cursor Chat Browser</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-primary: #0a0a0f;
+      --bg-secondary: #12121a;
+      --bg-tertiary: #1a1a25;
+      --bg-hover: #22222f;
+      --accent-primary: #6366f1;
+      --accent-secondary: #818cf8;
+      --accent-glow: rgba(99, 102, 241, 0.3);
+      --text-primary: #f1f5f9;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --border-color: #2a2a3a;
+      --success: #22c55e;
+      --success-bg: rgba(34, 197, 94, 0.1);
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --terminal: #10b981;
+      --chat: #3b82f6;
+      --agent: #a855f7;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: 
+        radial-gradient(ellipse at 20% 20%, rgba(99, 102, 241, 0.08) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 80%, rgba(168, 85, 247, 0.06) 0%, transparent 50%),
+        radial-gradient(ellipse at 50% 50%, rgba(34, 197, 94, 0.03) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .container {
+      display: grid;
+      grid-template-columns: 260px 300px 1fr 340px;
+      height: 100vh;
+    }
+
+    /* Sidebar - Dates */
+    .sidebar {
+      background: var(--bg-secondary);
+      border-right: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .sidebar-header {
+      padding: 20px 16px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .logo-icon {
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, var(--accent-primary), var(--agent));
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+    }
+
+    .search-box {
+      margin-top: 14px;
+      position: relative;
+    }
+
+    .search-box input {
+      width: 100%;
+      padding: 10px 14px 10px 36px;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      color: var(--text-primary);
+      font-family: inherit;
+      font-size: 0.85rem;
+      transition: all 0.2s;
+    }
+
+    .search-box input:focus {
+      outline: none;
+      border-color: var(--accent-primary);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+
+    .search-box::before {
+      content: '🔍';
+      position: absolute;
+      left: 11px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 0.8rem;
+    }
+
+    .date-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 10px;
+    }
+
+    .date-item {
+      padding: 12px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-bottom: 4px;
+    }
+
+    .date-item:hover {
+      background: var(--bg-hover);
+    }
+
+    .date-item.active {
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(168, 85, 247, 0.1));
+      border: 1px solid var(--accent-primary);
+    }
+
+    .date-label {
+      font-weight: 500;
+      font-size: 0.9rem;
+      color: var(--text-primary);
+      margin-bottom: 3px;
+    }
+
+    .date-meta {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    /* Workspace list */
+    .workspace-panel {
+      background: var(--bg-primary);
+      border-right: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .panel-header {
+      padding: 16px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .panel-title {
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .panel-subtitle {
+      font-size: 1rem;
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+
+    .workspace-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 10px;
+    }
+
+    .workspace-item {
+      padding: 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-bottom: 6px;
+      border: 1px solid transparent;
+    }
+
+    .workspace-item:hover {
+      background: var(--bg-secondary);
+      border-color: var(--border-color);
+    }
+
+    .workspace-item.active {
+      background: var(--bg-secondary);
+      border-color: var(--accent-primary);
+    }
+
+    .workspace-name {
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: var(--text-primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-bottom: 5px;
+    }
+
+    .workspace-meta {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.7rem;
+      color: var(--text-muted);
+    }
+
+    .prompt-count {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      color: var(--accent-secondary);
+    }
+
+    /* Chat panel */
+    .chat-panel {
+      display: flex;
+      flex-direction: column;
+      background: var(--bg-primary);
+    }
+
+    .chat-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .chat-title {
+      font-size: 0.95rem;
+      font-weight: 500;
+    }
+
+    .chat-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn {
+      padding: 7px 14px;
+      border-radius: 6px;
+      border: none;
+      font-family: inherit;
+      font-size: 0.8rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .btn-primary {
+      background: var(--accent-primary);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: var(--accent-secondary);
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+      background: var(--bg-tertiary);
+      color: var(--text-secondary);
+      border: 1px solid var(--border-color);
+    }
+
+    .btn-secondary:hover {
+      background: var(--bg-hover);
+      color: var(--text-primary);
+    }
+
+    .btn-success {
+      background: var(--success);
+      color: white;
+    }
+
+    .btn-success:hover {
+      background: #16a34a;
+    }
+
+    .btn-sm {
+      padding: 4px 8px;
+      font-size: 0.7rem;
+    }
+
+    .chat-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px 20px;
+    }
+
+    .prompt-item {
+      padding: 14px;
+      background: var(--bg-secondary);
+      border-radius: 10px;
+      margin-bottom: 10px;
+      border: 1px solid var(--border-color);
+      transition: all 0.2s;
+      cursor: pointer;
+    }
+
+    .prompt-item:hover {
+      border-color: var(--accent-primary);
+      transform: translateX(3px);
+    }
+
+    .prompt-item.selected {
+      border-color: var(--success);
+      background: var(--success-bg);
+    }
+
+    .prompt-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .prompt-type {
+      font-size: 0.65rem;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .prompt-type.terminal {
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--terminal);
+    }
+
+    .prompt-type.chat {
+      background: rgba(59, 130, 246, 0.15);
+      color: var(--chat);
+    }
+
+    .prompt-type.agent {
+      background: rgba(168, 85, 247, 0.15);
+      color: var(--agent);
+    }
+
+    .prompt-checkbox {
+      margin-left: auto;
+      width: 18px;
+      height: 18px;
+      accent-color: var(--success);
+    }
+
+    .prompt-text {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      line-height: 1.5;
+      color: var(--text-secondary);
+      white-space: pre-wrap;
+      word-break: break-word;
+      max-height: 120px;
+      overflow: hidden;
+    }
+
+    /* Selection Panel */
+    .selection-panel {
+      background: var(--bg-secondary);
+      border-left: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .selection-header {
+      padding: 16px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .selection-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .selection-badge {
+      background: var(--success);
+      color: white;
+      font-size: 0.7rem;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-weight: 600;
+    }
+
+    .selection-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px;
+    }
+
+    .selected-item {
+      padding: 12px;
+      background: var(--bg-tertiary);
+      border-radius: 8px;
+      margin-bottom: 8px;
+      border: 1px solid var(--border-color);
+      position: relative;
+    }
+
+    .selected-item-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+
+    .selected-item-workspace {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      flex: 1;
+    }
+
+    .selected-item-remove {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 1rem;
+      padding: 0;
+      line-height: 1;
+      opacity: 0.6;
+    }
+
+    .selected-item-remove:hover {
+      color: var(--danger);
+      opacity: 1;
+    }
+
+    .selected-item-text {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      line-height: 1.4;
+      color: var(--text-secondary);
+      white-space: pre-wrap;
+      word-break: break-word;
+      max-height: 60px;
+      overflow: hidden;
+    }
+
+    .selection-footer {
+      padding: 14px;
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .selection-footer .btn {
+      width: 100%;
+      justify-content: center;
+    }
+
+    /* Empty state */
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      color: var(--text-muted);
+      text-align: center;
+      padding: 30px;
+    }
+
+    .empty-icon {
+      font-size: 3rem;
+      margin-bottom: 12px;
+      opacity: 0.5;
+    }
+
+    .empty-title {
+      font-size: 1rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      margin-bottom: 6px;
+    }
+
+    .empty-text {
+      font-size: 0.8rem;
+    }
+
+    /* Summary modal */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(4px);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal {
+      background: var(--bg-secondary);
+      border-radius: 14px;
+      border: 1px solid var(--border-color);
+      width: 90%;
+      max-width: 800px;
+      max-height: 80vh;
+      display: flex;
+      flex-direction: column;
+      animation: modalIn 0.3s ease;
+    }
+
+    @keyframes modalIn {
+      from {
+        opacity: 0;
+        transform: scale(0.95) translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
+    }
+
+    .modal-header {
+      padding: 18px 22px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 1.4rem;
+      cursor: pointer;
+      padding: 4px;
+      line-height: 1;
+    }
+
+    .modal-close:hover {
+      color: var(--text-primary);
+    }
+
+    .modal-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 22px;
+    }
+
+    .summary-text {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      line-height: 1.7;
+      white-space: pre-wrap;
+      color: var(--text-secondary);
+    }
+
+    .modal-footer {
+      padding: 14px 22px;
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+
+    /* Scrollbar styling */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--bg-primary);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--border-color);
+      border-radius: 3px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--text-muted);
+    }
+
+    /* Loading state */
+    .loading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px;
+    }
+
+    .spinner {
+      width: 36px;
+      height: 36px;
+      border: 3px solid var(--border-color);
+      border-top-color: var(--accent-primary);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Sidebar: Dates -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="logo">
+          <div class="logo-icon">💬</div>
+          <span>Chat Browser</span>
+        </div>
+        <div class="search-box">
+          <input type="text" id="searchInput" placeholder="Search prompts...">
+        </div>
+      </div>
+      <div class="date-list" id="dateList">
+        <div class="loading"><div class="spinner"></div></div>
+      </div>
+    </aside>
+
+    <!-- Workspace Panel -->
+    <div class="workspace-panel">
+      <div class="panel-header">
+        <div class="panel-title">Workspaces</div>
+        <div class="panel-subtitle" id="selectedDate">Select a date</div>
+      </div>
+      <div class="workspace-list" id="workspaceList">
+        <div class="empty-state">
+          <div class="empty-icon">📅</div>
+          <div class="empty-title">Select a date</div>
+          <p class="empty-text">Choose a date from the sidebar</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Chat Panel -->
+    <div class="chat-panel">
+      <div class="chat-header">
+        <div class="chat-title" id="chatTitle">Select a workspace</div>
+        <div class="chat-actions">
+          <button class="btn btn-secondary" onclick="selectAllInWorkspace()">Select All</button>
+        </div>
+      </div>
+      <div class="chat-content" id="chatContent">
+        <div class="empty-state">
+          <div class="empty-icon">💭</div>
+          <div class="empty-title">No workspace selected</div>
+          <p class="empty-text">Select a workspace to view prompts</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Selection Panel -->
+    <div class="selection-panel">
+      <div class="selection-header">
+        <div class="selection-title">
+          ✅ Selected
+          <span class="selection-badge" id="selectionBadge">0</span>
+        </div>
+        <button class="btn btn-secondary btn-sm" onclick="clearAllSelections()">Clear All</button>
+      </div>
+      <div class="selection-list" id="selectionList">
+        <div class="empty-state">
+          <div class="empty-icon">📋</div>
+          <div class="empty-title">No selections yet</div>
+          <p class="empty-text">Click on prompts to select them</p>
+        </div>
+      </div>
+      <div class="selection-footer">
+        <button class="btn btn-success" onclick="showSummary()">📋 View Summary</button>
+        <button class="btn btn-primary" onclick="copyAllSelected()">📎 Copy to Clipboard</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Summary Modal -->
+  <div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+    <div class="modal" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <div class="modal-title">📋 Selected Prompts Summary</div>
+        <button class="modal-close" onclick="closeModal()">&times;</button>
+      </div>
+      <div class="modal-content">
+        <pre class="summary-text" id="summaryText"></pre>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal()">Close</button>
+        <button class="btn btn-primary" onclick="copySummary()">📋 Copy</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let dates = [];
+    let workspaces = [];
+    let currentWorkspaceId = null;
+    let currentPrompts = [];
+    
+    // Global selection storage: Map of "workspaceId:promptIndex" -> { workspace, workspaceName, prompt }
+    let globalSelections = new Map();
+    
+    const typeLabels = {
+      1: { label: 'Terminal', class: 'terminal' },
+      2: { label: 'Chat', class: 'chat' },
+      4: { label: 'Agent', class: 'agent' }
+    };
+
+    async function fetchDates() {
+      const response = await fetch('/api/dates');
+      dates = await response.json();
+      renderDates();
+    }
+
+    async function fetchWorkspaces() {
+      const response = await fetch('/api/workspaces?days=30');
+      workspaces = await response.json();
+    }
+
+    function renderDates() {
+      const container = document.getElementById('dateList');
+      
+      if (dates.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-icon">📭</div>
+            <div class="empty-title">No chats found</div>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = dates.map(d => {
+        const date = new Date(d.date + 'T12:00:00');
+        const isToday = d.date === new Date().toLocaleDateString('en-CA');
+        const isYesterday = d.date === new Date(Date.now() - 86400000).toLocaleDateString('en-CA');
+        
+        let label = date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+        if (isToday) label = '📅 Today';
+        if (isYesterday) label = '📆 Yesterday';
+        
+        return `
+          <div class="date-item" data-date="${d.date}" onclick="selectDate('${d.date}')">
+            <div class="date-label">${label}</div>
+            <div class="date-meta">${d.promptCount} prompts · ${d.workspaceIds.length} workspaces</div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function selectDate(dateStr) {
+      document.querySelectorAll('.date-item').forEach(el => el.classList.remove('active'));
+      document.querySelector(`[data-date="${dateStr}"]`)?.classList.add('active');
+      
+      const date = new Date(dateStr + 'T12:00:00');
+      document.getElementById('selectedDate').textContent = date.toLocaleDateString('en-US', { 
+        weekday: 'long', month: 'long', day: 'numeric' 
+      });
+      
+      const dateData = dates.find(d => d.date === dateStr);
+      if (!dateData) return;
+      
+      renderWorkspaces(dateData.workspaceIds);
+    }
+
+    function renderWorkspaces(workspaceIds) {
+      const filtered = workspaces.filter(ws => workspaceIds.includes(ws.id));
+      const container = document.getElementById('workspaceList');
+      
+      container.innerHTML = filtered.map(ws => {
+        const name = ws.folder 
+          ? ws.folder.split('/').pop() || ws.folder 
+          : ws.id.substring(0, 12) + '...';
+        const time = new Date(ws.modified).toLocaleTimeString('en-US', { 
+          hour: '2-digit', minute: '2-digit' 
+        });
+        
+        // Count selections in this workspace
+        const wsSelections = countWorkspaceSelections(ws.id);
+        const selectionIndicator = wsSelections > 0 ? `<span style="color: var(--success)">✓${wsSelections}</span>` : '';
+        
+        return `
+          <div class="workspace-item ${currentWorkspaceId === ws.id ? 'active' : ''}" data-id="${ws.id}" onclick="selectWorkspace('${ws.id}')">
+            <div class="workspace-name" title="${ws.folder || ws.id}">${name}</div>
+            <div class="workspace-meta">
+              <span>🕐 ${time}</span>
+              <span class="prompt-count">💬 ${ws.promptCount}</span>
+              ${selectionIndicator}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function countWorkspaceSelections(workspaceId) {
+      let count = 0;
+      globalSelections.forEach((val, key) => {
+        if (key.startsWith(workspaceId + ':')) count++;
+      });
+      return count;
+    }
+
+    async function selectWorkspace(id) {
+      currentWorkspaceId = id;
+      document.querySelectorAll('.workspace-item').forEach(el => el.classList.remove('active'));
+      document.querySelector(`[data-id="${id}"]`)?.classList.add('active');
+      
+      const response = await fetch(`/api/workspaces/${id}`);
+      const workspace = await response.json();
+      
+      currentPrompts = workspace.prompts || [];
+      
+      const name = workspace.folder 
+        ? workspace.folder.split('/').pop() || workspace.folder 
+        : workspace.id;
+      document.getElementById('chatTitle').textContent = name;
+      
+      renderPrompts();
+    }
+
+    function getSelectionKey(workspaceId, promptIndex) {
+      return `${workspaceId}:${promptIndex}`;
+    }
+
+    function isPromptSelected(workspaceId, promptIndex) {
+      return globalSelections.has(getSelectionKey(workspaceId, promptIndex));
+    }
+
+    function renderPrompts() {
+      const container = document.getElementById('chatContent');
+      
+      if (currentPrompts.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-icon">💭</div>
+            <div class="empty-title">No prompts found</div>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = currentPrompts.map((prompt, index) => {
+        const type = typeLabels[prompt.commandType] || { label: 'Other', class: 'chat' };
+        const isSelected = isPromptSelected(currentWorkspaceId, index);
+        const text = prompt.text || '';
+        
+        return `
+          <div class="prompt-item ${isSelected ? 'selected' : ''}" onclick="togglePrompt(${index})">
+            <div class="prompt-header">
+              <span class="prompt-type ${type.class}">${type.label}</span>
+              <input type="checkbox" class="prompt-checkbox" ${isSelected ? 'checked' : ''} onclick="event.stopPropagation(); togglePrompt(${index})">
+            </div>
+            <div class="prompt-text">${escapeHtml(text)}</div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function togglePrompt(index) {
+      const key = getSelectionKey(currentWorkspaceId, index);
+      
+      if (globalSelections.has(key)) {
+        globalSelections.delete(key);
+      } else {
+        const ws = workspaces.find(w => w.id === currentWorkspaceId);
+        const workspaceName = ws?.folder 
+          ? ws.folder.split('/').pop() || ws.folder 
+          : currentWorkspaceId.substring(0, 12) + '...';
+        
+        globalSelections.set(key, {
+          workspaceId: currentWorkspaceId,
+          workspaceName,
+          promptIndex: index,
+          prompt: currentPrompts[index]
+        });
+      }
+      
+      renderPrompts();
+      renderSelectionList();
+      updateWorkspaceIndicators();
+    }
+
+    function selectAllInWorkspace() {
+      if (!currentWorkspaceId || currentPrompts.length === 0) return;
+      
+      const ws = workspaces.find(w => w.id === currentWorkspaceId);
+      const workspaceName = ws?.folder 
+        ? ws.folder.split('/').pop() || ws.folder 
+        : currentWorkspaceId.substring(0, 12) + '...';
+      
+      currentPrompts.forEach((prompt, index) => {
+        const key = getSelectionKey(currentWorkspaceId, index);
+        if (!globalSelections.has(key)) {
+          globalSelections.set(key, {
+            workspaceId: currentWorkspaceId,
+            workspaceName,
+            promptIndex: index,
+            prompt
+          });
+        }
+      });
+      
+      renderPrompts();
+      renderSelectionList();
+      updateWorkspaceIndicators();
+    }
+
+    function removeSelection(key) {
+      globalSelections.delete(key);
+      renderPrompts();
+      renderSelectionList();
+      updateWorkspaceIndicators();
+    }
+
+    function clearAllSelections() {
+      globalSelections.clear();
+      renderPrompts();
+      renderSelectionList();
+      updateWorkspaceIndicators();
+    }
+
+    function updateWorkspaceIndicators() {
+      // Re-render workspaces to update selection indicators
+      const activeDate = document.querySelector('.date-item.active');
+      if (activeDate) {
+        const dateStr = activeDate.dataset.date;
+        const dateData = dates.find(d => d.date === dateStr);
+        if (dateData) {
+          renderWorkspaces(dateData.workspaceIds);
+        }
+      }
+    }
+
+    function renderSelectionList() {
+      const container = document.getElementById('selectionList');
+      const badge = document.getElementById('selectionBadge');
+      
+      badge.textContent = globalSelections.size;
+      
+      if (globalSelections.size === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-icon">📋</div>
+            <div class="empty-title">No selections yet</div>
+            <p class="empty-text">Click on prompts to select them</p>
+          </div>
+        `;
+        return;
+      }
+
+      const items = Array.from(globalSelections.entries());
+      
+      container.innerHTML = items.map(([key, data]) => {
+        const type = typeLabels[data.prompt.commandType] || { label: 'Other', class: 'chat' };
+        const text = data.prompt.text || '';
+        
+        return `
+          <div class="selected-item">
+            <div class="selected-item-header">
+              <span class="prompt-type ${type.class}" style="font-size: 0.6rem; padding: 2px 6px;">${type.label}</span>
+              <span class="selected-item-workspace">${data.workspaceName}</span>
+              <button class="selected-item-remove" onclick="removeSelection('${key}')">&times;</button>
+            </div>
+            <div class="selected-item-text">${escapeHtml(text)}</div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function getSelectedText() {
+      const items = Array.from(globalSelections.values());
+      
+      // Group by workspace
+      const grouped = new Map();
+      items.forEach(item => {
+        if (!grouped.has(item.workspaceName)) {
+          grouped.set(item.workspaceName, []);
+        }
+        grouped.get(item.workspaceName).push(item);
+      });
+      
+      let text = '';
+      grouped.forEach((prompts, workspace) => {
+        text += `## 📁 ${workspace}\n\n`;
+        prompts.forEach(item => {
+          const type = typeLabels[item.prompt.commandType]?.label || 'Other';
+          text += `### ${type}\n\`\`\`\n${item.prompt.text}\n\`\`\`\n\n`;
+        });
+        text += '---\n\n';
+      });
+      
+      return text;
+    }
+
+    function showSummary() {
+      if (globalSelections.size === 0) {
+        alert('Please select some prompts first!');
+        return;
+      }
+      
+      document.getElementById('summaryText').textContent = getSelectedText();
+      document.getElementById('modalOverlay').classList.add('active');
+    }
+
+    function closeModal(event) {
+      if (!event || event.target === event.currentTarget) {
+        document.getElementById('modalOverlay').classList.remove('active');
+      }
+    }
+
+    async function copyAllSelected() {
+      if (globalSelections.size === 0) {
+        alert('Please select some prompts first!');
+        return;
+      }
+      const text = getSelectedText();
+      await navigator.clipboard.writeText(text);
+      alert(`Copied ${globalSelections.size} prompts to clipboard!`);
+    }
+
+    async function copySummary() {
+      const text = document.getElementById('summaryText').textContent;
+      await navigator.clipboard.writeText(text);
+      alert('Copied to clipboard!');
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    // Search functionality
+    let searchTimeout;
+    document.getElementById('searchInput').addEventListener('input', (e) => {
+      clearTimeout(searchTimeout);
+      searchTimeout = setTimeout(() => search(e.target.value), 300);
+    });
+
+    async function search(query) {
+      if (!query.trim()) {
+        renderDates();
+        return;
+      }
+      
+      const response = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
+      const results = await response.json();
+      
+      // Create a virtual workspace for search results
+      currentWorkspaceId = '__search__';
+      currentPrompts = results.map(r => r.prompt);
+      
+      document.getElementById('chatTitle').textContent = `🔍 Search: "${query}"`;
+      renderPrompts();
+    }
+
+    // Initialize
+    async function init() {
+      await Promise.all([fetchDates(), fetchWorkspaces()]);
+      renderSelectionList();
+      
+      // Auto-select today if available
+      const today = new Date().toLocaleDateString('en-CA');
+      if (dates.find(d => d.date === today)) {
+        selectDate(today);
+      }
+    }
+
+    init();
+  </script>
+</body>
+</html>

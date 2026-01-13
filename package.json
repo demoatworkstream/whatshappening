@@ -1,0 +1,46 @@
+{
+  "name": "whatisgoingon",
+  "version": "1.0.9",
+  "description": "Browse and explore your Cursor AI chat history with a beautiful web UI",
+  "type": "module",
+  "bin": {
+    "whatisgoingon": "./bin/cli.js"
+  },
+  "scripts": {
+    "dev": "concurrently \"tsx watch src/server.ts\" \"cd frontend && pnpm dev\"",
+    "build": "pnpm build:server && pnpm build:frontend",
+    "build:frontend": "cd frontend && pnpm build && rm -rf ../dist/public && cp -r dist ../dist/public",
+    "build:server": "tsc",
+    "start": "node bin/cli.js",
+    "prepublishOnly": "pnpm build"
+  },
+  "keywords": [
+    "cursor",
+    "chat",
+    "history",
+    "browser",
+    "ai",
+    "dev-tools"
+  ],
+  "author": "",
+  "license": "MIT",
+  "files": [
+    "dist",
+    "bin"
+  ],
+  "dependencies": {
+    "better-sqlite3": "^12.5.0",
+    "cors": "^2.8.5",
+    "express": "^5.2.1",
+    "open": "^10.2.0"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/node": "^25.0.3",
+    "concurrently": "^9.1.2",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
+  }
+}
