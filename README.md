@@ -27,8 +27,8 @@ This will start the server and automatically open your browser to http://localho
 
 ```bash
 # Clone the repository
-git clone <your-repo-url>
-cd whatshappening
+git clone https://github.com/demoatworkstream/whatisgoingon.git
+cd whatisgoingon
 
 # Install dependencies
 pnpm install
