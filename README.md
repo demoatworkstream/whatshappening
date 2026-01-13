@@ -2,7 +2,7 @@
 
 A beautiful web UI to browse and explore your **Cursor AI** chat history.
 
-![Screenshot](https://via.placeholder.com/800x450?text=Chat+Browser+Screenshot)
+![Screenshot](https://raw.githubusercontent.com/demoatworkstream/whatisgoingon/master/docs/images/slide1.png)
 
 ## Features
 
