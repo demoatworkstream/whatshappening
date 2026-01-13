@@ -233,6 +233,150 @@
       font-weight: 600;
     }
 
+    /* Apple-style Carousel */
+    .carousel {
+      position: relative;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .carousel-inner {
+      position: relative;
+      overflow: hidden;
+      border-radius: 16px;
+      box-shadow: 0 25px 80px rgba(0, 0, 0, 0.5), 0 0 0 1px var(--border-color);
+    }
+
+    .carousel-slides {
+      display: flex;
+      transition: transform 0.5s ease-in-out;
+    }
+
+    .carousel-slide {
+      min-width: 100%;
+      position: relative;
+    }
+
+    .carousel-slide img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .carousel-slide .slide-label {
+      position: absolute;
+      top: 1rem;
+      left: 1rem;
+      background: rgba(139, 92, 246, 0.95);
+      color: white;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      backdrop-filter: blur(10px);
+    }
+
+    .carousel-slide .slide-title {
+      position: absolute;
+      bottom: 1.5rem;
+      left: 1.5rem;
+      right: 1.5rem;
+      background: rgba(0, 0, 0, 0.75);
+      color: white;
+      padding: 1rem 1.25rem;
+      border-radius: 12px;
+      backdrop-filter: blur(10px);
+    }
+
+    .carousel-slide .slide-title h4 {
+      margin: 0 0 0.25rem 0;
+      font-size: 1.1rem;
+    }
+
+    .carousel-slide .slide-title p {
+      margin: 0;
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+    }
+
+    /* Carousel Dots (Apple style) */
+    .carousel-dots {
+      display: flex;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-top: 1.5rem;
+      padding: 0.75rem;
+    }
+
+    .carousel-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.3);
+      border: none;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      padding: 0;
+    }
+
+    .carousel-dot:hover {
+      background: rgba(255, 255, 255, 0.5);
+    }
+
+    .carousel-dot.active {
+      background: white;
+      transform: scale(1.2);
+    }
+
+    /* Carousel Navigation Arrows */
+    .carousel-nav {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: white;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+      backdrop-filter: blur(10px);
+      z-index: 10;
+    }
+
+    .carousel-nav:hover {
+      background: rgba(255, 255, 255, 0.2);
+      transform: translateY(-50%) scale(1.05);
+    }
+
+    .carousel-nav.prev {
+      left: 1rem;
+    }
+
+    .carousel-nav.next {
+      right: 1rem;
+    }
+
+    @media (max-width: 768px) {
+      .carousel-nav {
+        width: 36px;
+        height: 36px;
+      }
+      .carousel-slide .slide-title {
+        padding: 0.75rem 1rem;
+      }
+      .carousel-slide .slide-title h4 {
+        font-size: 1rem;
+      }
+      .carousel-slide .slide-title p {
+        font-size: 0.8rem;
+      }
+    }
+
     /* How It Works */
     .how-it-works {
       padding: 6rem 2rem;
@@ -471,24 +615,59 @@
       <h2 class="section-title">See It In Action</h2>
       <p class="section-subtitle">Follow along with the step-by-step usage flow</p>
       
-      <div class="screenshot-wrapper">
-        <span class="screenshot-label">Step 1: Browse by Date</span>
-        <img src="images/step1-browse-dates.png" alt="Step 1 - Browse your chat history organized by date with conversation counts">
-      </div>
-      
-      <div class="screenshot-wrapper">
-        <span class="screenshot-label">Step 2: View Conversation</span>
-        <img src="images/step2-view-conversation.png" alt="Step 2 - Click on a conversation to see the full chat with user and AI messages">
-      </div>
-      
-      <div class="screenshot-wrapper">
-        <span class="screenshot-label">Step 3: Select Conversations</span>
-        <img src="images/step3-select-conversations.png" alt="Step 3 - Select multiple conversations using checkboxes for export">
-      </div>
-      
-      <div class="screenshot-wrapper">
-        <span class="screenshot-label">Step 4: Export Summary</span>
-        <img src="images/step4-view-summary.png" alt="Step 4 - View and export conversation summary as markdown with date filtering">
+      <div class="carousel">
+        <div class="carousel-inner">
+          <div class="carousel-slides" id="carouselSlides">
+            <div class="carousel-slide">
+              <img src="images/slide1.png" alt="Step 1 - Browse your chat history organized by date">
+              <span class="slide-label">Step 1</span>
+              <div class="slide-title">
+                <h4>Browse by Date</h4>
+                <p>Your chats organized by date with conversation counts</p>
+              </div>
+            </div>
+            <div class="carousel-slide">
+              <img src="images/slide2.png" alt="Step 2 - View conversation details">
+              <span class="slide-label">Step 2</span>
+              <div class="slide-title">
+                <h4>View Conversation</h4>
+                <p>Click to see the full chat with user and AI messages</p>
+              </div>
+            </div>
+            <div class="carousel-slide">
+              <img src="images/slide3.png" alt="Step 3 - Select multiple conversations">
+              <span class="slide-label">Step 3</span>
+              <div class="slide-title">
+                <h4>Select Conversations</h4>
+                <p>Use checkboxes to select multiple chats for export</p>
+              </div>
+            </div>
+            <div class="carousel-slide">
+              <img src="images/slide4.png" alt="Step 4 - Export as markdown">
+              <span class="slide-label">Step 4</span>
+              <div class="slide-title">
+                <h4>Export Summary</h4>
+                <p>Copy as markdown with flexible date filtering</p>
+              </div>
+            </div>
+          </div>
+          <button class="carousel-nav prev" onclick="prevSlide()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M15 18l-6-6 6-6"/>
+            </svg>
+          </button>
+          <button class="carousel-nav next" onclick="nextSlide()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M9 18l6-6-6-6"/>
+            </svg>
+          </button>
+        </div>
+        <div class="carousel-dots">
+          <button class="carousel-dot active" onclick="goToSlide(0)"></button>
+          <button class="carousel-dot" onclick="goToSlide(1)"></button>
+          <button class="carousel-dot" onclick="goToSlide(2)"></button>
+          <button class="carousel-dot" onclick="goToSlide(3)"></button>
+        </div>
       </div>
     </div>
   </section>
@@ -576,6 +755,44 @@
         btn.innerHTML = originalText;
       }, 2000);
     }
+
+    // Carousel functionality
+    let currentSlide = 0;
+    const totalSlides = 4;
+
+    function updateCarousel() {
+      const slides = document.getElementById('carouselSlides');
+      slides.style.transform = `translateX(-${currentSlide * 100}%)`;
+      
+      // Update dots
+      document.querySelectorAll('.carousel-dot').forEach((dot, index) => {
+        dot.classList.toggle('active', index === currentSlide);
+      });
+    }
+
+    function nextSlide() {
+      currentSlide = (currentSlide + 1) % totalSlides;
+      updateCarousel();
+    }
+
+    function prevSlide() {
+      currentSlide = (currentSlide - 1 + totalSlides) % totalSlides;
+      updateCarousel();
+    }
+
+    function goToSlide(index) {
+      currentSlide = index;
+      updateCarousel();
+    }
+
+    // Auto-advance carousel every 5 seconds
+    setInterval(nextSlide, 5000);
+
+    // Keyboard navigation
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowLeft') prevSlide();
+      if (e.key === 'ArrowRight') nextSlide();
+    });
   </script>
 </body>
 </html>
