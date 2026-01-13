@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>What Is Going On? - Cursor AI Chat History Browser</title>
+  <meta name="description" content="A beautiful web UI to browse and explore your Cursor AI chat history. Browse chats by date, view conversations, and export summaries.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔍</text></svg>">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg-dark: #0d0d0f;
+      --bg-card: #1a1a1f;
+      --bg-hover: #252530;
+      --text-primary: #ffffff;
+      --text-secondary: #a0a0b0;
+      --accent-purple: #8b5cf6;
+      --accent-green: #22c55e;
+      --accent-blue: #3b82f6;
+      --border-color: #2a2a35;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+      background: var(--bg-dark);
+      color: var(--text-primary);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* Hero Section */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 2rem;
+      background: linear-gradient(180deg, #1a1a2e 0%, var(--bg-dark) 100%);
+      position: relative;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: radial-gradient(circle at 50% 30%, rgba(139, 92, 246, 0.15) 0%, transparent 50%);
+      pointer-events: none;
+    }
+
+    .logo {
+      font-size: 4rem;
+      margin-bottom: 1rem;
+      animation: float 3s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
+    h1 {
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      font-weight: 700;
+      margin-bottom: 1rem;
+      background: linear-gradient(135deg, #fff 0%, #a78bfa 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .tagline {
+      font-size: 1.25rem;
+      color: var(--text-secondary);
+      max-width: 600px;
+      margin-bottom: 2rem;
+    }
+
+    .cta-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .cta-command {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1rem 2rem;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 1.25rem;
+      color: var(--accent-green);
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .cta-command:hover {
+      background: var(--bg-hover);
+      border-color: var(--accent-purple);
+      transform: translateY(-2px);
+    }
+
+    .cta-command .copy-icon {
+      opacity: 0.5;
+      transition: opacity 0.2s;
+    }
+
+    .cta-command:hover .copy-icon {
+      opacity: 1;
+    }
+
+    .cta-hint {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+    }
+
+    .scroll-indicator {
+      position: absolute;
+      bottom: 2rem;
+      animation: bounce 2s infinite;
+    }
+
+    @keyframes bounce {
+      0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+      40% { transform: translateY(-10px); }
+      60% { transform: translateY(-5px); }
+    }
+
+    /* Features Section */
+    .features {
+      padding: 6rem 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .section-title {
+      text-align: center;
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .section-subtitle {
+      text-align: center;
+      color: var(--text-secondary);
+      margin-bottom: 4rem;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 2rem;
+    }
+
+    .feature-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 2rem;
+      transition: all 0.3s ease;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-5px);
+      border-color: var(--accent-purple);
+      box-shadow: 0 20px 40px rgba(139, 92, 246, 0.1);
+    }
+
+    .feature-icon {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .feature-title {
+      font-size: 1.25rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .feature-desc {
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+    }
+
+    /* Screenshot Section */
+    .screenshot-section {
+      padding: 6rem 2rem;
+      background: linear-gradient(180deg, var(--bg-dark) 0%, #1a1a2e 50%, var(--bg-dark) 100%);
+    }
+
+    .screenshot-container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .screenshot-wrapper {
+      position: relative;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 25px 80px rgba(0, 0, 0, 0.5), 0 0 0 1px var(--border-color);
+      margin-bottom: 3rem;
+    }
+
+    .screenshot-wrapper img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .screenshot-label {
+      position: absolute;
+      top: 1rem;
+      left: 1rem;
+      background: rgba(139, 92, 246, 0.9);
+      color: white;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    /* How It Works */
+    .how-it-works {
+      padding: 6rem 2rem;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .steps {
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+
+    .step {
+      display: flex;
+      gap: 1.5rem;
+      align-items: flex-start;
+    }
+
+    .step-number {
+      flex-shrink: 0;
+      width: 48px;
+      height: 48px;
+      background: linear-gradient(135deg, var(--accent-purple) 0%, var(--accent-blue) 100%);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 1.25rem;
+    }
+
+    .step-content h3 {
+      font-size: 1.25rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .step-content p {
+      color: var(--text-secondary);
+    }
+
+    .step-content code {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      display: inline-block;
+      margin-top: 0.5rem;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      color: var(--accent-green);
+    }
+
+    /* Privacy Section */
+    .privacy {
+      padding: 4rem 2rem;
+      text-align: center;
+      background: var(--bg-card);
+      border-top: 1px solid var(--border-color);
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .privacy-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.75rem;
+      background: rgba(34, 197, 94, 0.1);
+      border: 1px solid rgba(34, 197, 94, 0.3);
+      padding: 1rem 2rem;
+      border-radius: 50px;
+      color: var(--accent-green);
+      font-weight: 600;
+    }
+
+    .privacy-text {
+      margin-top: 1rem;
+      color: var(--text-secondary);
+      max-width: 500px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    /* Requirements */
+    .requirements {
+      padding: 6rem 2rem;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .req-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .req-item {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      padding: 1rem 1.5rem;
+      border-radius: 12px;
+    }
+
+    .req-icon {
+      font-size: 1.5rem;
+    }
+
+    /* Footer */
+    footer {
+      padding: 3rem 2rem;
+      text-align: center;
+      border-top: 1px solid var(--border-color);
+    }
+
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .footer-links a {
+      color: var(--text-secondary);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .footer-links a:hover {
+      color: var(--accent-purple);
+    }
+
+    .footer-copy {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .hero {
+        min-height: auto;
+        padding: 4rem 1.5rem;
+      }
+
+      .logo {
+        font-size: 3rem;
+      }
+
+      .cta-command {
+        font-size: 1rem;
+        padding: 0.75rem 1.5rem;
+      }
+
+      .step {
+        flex-direction: column;
+        text-align: center;
+        align-items: center;
+      }
+
+      .footer-links {
+        flex-direction: column;
+        gap: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="logo">🔍</div>
+    <h1>What Is Going On?</h1>
+    <p class="tagline">A beautiful web UI to browse and explore your Cursor AI chat history. Find past conversations, export summaries, and never lose track of your AI-assisted coding sessions.</p>
+    
+    <div class="cta-container">
+      <div class="cta-command" onclick="copyCommand()">
+        <span>npx whatisgoingon</span>
+        <span class="copy-icon">📋</span>
+      </div>
+      <p class="cta-hint">Run this command in your terminal to get started</p>
+    </div>
+
+    <div class="scroll-indicator">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M12 5v14M5 12l7 7 7-7"/>
+      </svg>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section class="features">
+    <h2 class="section-title">Everything You Need</h2>
+    <p class="section-subtitle">Quickly find and review your AI conversations with a modern, intuitive interface</p>
+    
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">📅</div>
+        <h3 class="feature-title">Date-Based Navigation</h3>
+        <p class="feature-desc">Browse your chats organized by date with conversation counts. Quickly jump to any day to see what you worked on.</p>
+      </div>
+      
+      <div class="feature-card">
+        <div class="feature-icon">💬</div>
+        <h3 class="feature-title">Conversation Viewer</h3>
+        <p class="feature-desc">See full chat content with user and AI messages beautifully formatted. Messages are grouped by date with auto-scroll.</p>
+      </div>
+      
+      <div class="feature-card">
+        <div class="feature-icon">✅</div>
+        <h3 class="feature-title">Multi-Select & Export</h3>
+        <p class="feature-desc">Select multiple conversations and export them as markdown summaries. Perfect for documentation or sharing.</p>
+      </div>
+      
+      <div class="feature-card">
+        <div class="feature-icon">📋</div>
+        <h3 class="feature-title">Summary Generation</h3>
+        <p class="feature-desc">Generate clean markdown summaries with flexible date filtering. Export Today, Yesterday, or All messages.</p>
+      </div>
+      
+      <div class="feature-card">
+        <div class="feature-icon">🎨</div>
+        <h3 class="feature-title">Beautiful Dark UI</h3>
+        <p class="feature-desc">Modern dark theme with smooth animations. Easy on the eyes during long coding sessions.</p>
+      </div>
+      
+      <div class="feature-card">
+        <div class="feature-icon">⚡</div>
+        <h3 class="feature-title">Instant Access</h3>
+        <p class="feature-desc">One command to launch. No installation required. Opens in your browser automatically.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Screenshot Section -->
+  <section class="screenshot-section">
+    <div class="screenshot-container">
+      <h2 class="section-title">See It In Action</h2>
+      <p class="section-subtitle">A clean, intuitive interface for exploring your chat history</p>
+      
+      <div class="screenshot-wrapper">
+        <span class="screenshot-label">📍 Main Interface</span>
+        <img src="images/screenshot-overview.png" alt="What Is Going On - Main Interface showing date navigation, conversation list, and chat detail view">
+      </div>
+      
+      <div class="screenshot-wrapper">
+        <span class="screenshot-label">📋 Export Summary</span>
+        <img src="images/screenshot-summary.png" alt="Conversation Summary modal with date filtering and markdown export">
+      </div>
+    </div>
+  </section>
+
+  <!-- How It Works -->
+  <section class="how-it-works">
+    <h2 class="section-title">How It Works</h2>
+    <p class="section-subtitle">Get started in seconds</p>
+    
+    <div class="steps">
+      <div class="step">
+        <div class="step-number">1</div>
+        <div class="step-content">
+          <h3>Run the Command</h3>
+          <p>Open your terminal and run the following command:</p>
+          <code>npx whatisgoingon</code>
+        </div>
+      </div>
+      
+      <div class="step">
+        <div class="step-number">2</div>
+        <div class="step-content">
+          <h3>Browser Opens Automatically</h3>
+          <p>The app starts a local server and opens your browser to <strong>http://localhost:3456</strong></p>
+        </div>
+      </div>
+      
+      <div class="step">
+        <div class="step-number">3</div>
+        <div class="step-content">
+          <h3>Browse Your Chats</h3>
+          <p>Navigate by date, click on conversations to view details, select multiple chats, and export summaries.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Privacy Section -->
+  <section class="privacy">
+    <div class="privacy-badge">
+      <span>🔒</span>
+      <span>100% Local & Private</span>
+    </div>
+    <p class="privacy-text">All data is processed locally on your machine. Nothing is sent to any external server. Your chat history stays private.</p>
+  </section>
+
+  <!-- Requirements -->
+  <section class="requirements">
+    <h2 class="section-title">Requirements</h2>
+    <p class="section-subtitle">What you need to get started</p>
+    
+    <div class="req-list">
+      <div class="req-item">
+        <span class="req-icon">📦</span>
+        <span><strong>Node.js 18+</strong> — Required to run the application</span>
+      </div>
+      <div class="req-item">
+        <span class="req-icon">✨</span>
+        <span><strong>Cursor IDE</strong> — With some chat history to browse</span>
+      </div>
+      <div class="req-item">
+        <span class="req-icon">🛠️</span>
+        <span><strong>Build Tools</strong> — Xcode CLI (macOS), VS Build Tools (Windows), or build-essential (Linux)</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-links">
+      <a href="https://github.com/demoatworkstream/whatshappening" target="_blank">GitHub</a>
+      <a href="https://www.npmjs.com/package/whatisgoingon" target="_blank">npm</a>
+      <a href="https://github.com/demoatworkstream/whatshappening/issues" target="_blank">Report Issue</a>
+    </div>
+    <p class="footer-copy">MIT License • Made with 💜 for the Cursor community</p>
+  </footer>
+
+  <script>
+    function copyCommand() {
+      navigator.clipboard.writeText('npx whatisgoingon');
+      const btn = document.querySelector('.cta-command');
+      const originalText = btn.innerHTML;
+      btn.innerHTML = '<span style="color: #22c55e;">✓ Copied!</span>';
+      setTimeout(() => {
+        btn.innerHTML = originalText;
+      }, 2000);
+    }
+  </script>
+</body>
+</html>
